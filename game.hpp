@@ -13,6 +13,7 @@
 #include <boost/range/adaptors.hpp>
 #include <boost/range/algorithm.hpp>
 #include <boost/range/iterator_range.hpp>
+#include <boost/range/numeric.hpp>
 
 namespace hexagonal_walk {
   class tile {
@@ -54,6 +55,23 @@ namespace hexagonal_walk {
   inline std::ostream& operator<<(std::ostream& stream, const tile& tile) {
     return stream << static_cast<int>(tile.x()) << "," << static_cast<int>(tile.y());
   }
+
+  class cubed_tile {
+    const int _cube_x;
+    const int _cube_z;
+    const int _cube_y;
+
+  public:
+    cubed_tile(const tile& tile)
+      : _cube_x(tile.x()), _cube_z(tile.y()), _cube_y(0 - _cube_x - _cube_z)
+    {
+      ;
+    }
+
+    int distance(const cubed_tile& other) const {
+      return (std::abs(_cube_x - other._cube_x) + std::abs(_cube_y - other._cube_y) + std::abs(_cube_z - other._cube_z)) / 2;
+    }
+  };
 }
 
 namespace std {
@@ -68,8 +86,10 @@ namespace std {
 namespace hexagonal_walk {
   extern std::vector<tile> _tiles;
   extern std::vector<std::uint8_t> _points;
-  extern std::vector<std::vector<uint16_t>> _adjacencies;
+  
+  extern std::vector<std::vector<std::uint16_t>> _adjacencies;
   extern std::uint16_t _start_index;
+  extern std::vector<std::uint16_t> _distances;
 
   auto read_question = []() {
     auto set_adjacencies = []() {
@@ -106,6 +126,17 @@ namespace hexagonal_walk {
 
     auto set_start_index = []() {
       _start_index = std::distance(std::begin(_points), boost::find(_points, 0));
+    };
+
+    auto set_distances = []() {
+      const cubed_tile start_cubed_tile(_tiles[_start_index]);
+
+      _distances = boost::copy_range<std::vector<std::uint16_t>>(
+        _tiles |
+        boost::adaptors::transformed(
+          [&](const auto& tile) {
+            return static_cast<std::uint16_t>(start_cubed_tile.distance(cubed_tile(tile)));
+          }));
     };
 
     _tiles.reserve(20000);
@@ -260,12 +291,21 @@ namespace hexagonal_walk {
 
     set_adjacencies();
     set_start_index();
+    set_distances();
   };
 
-  extern std::vector<std::uint16_t> _answer;
+  auto point = [](const std::vector<std::uint16_t>& indice) {
+    return boost::accumulate(
+      indice |
+      boost::adaptors::transformed(
+        [](const auto& index) {
+          return _points[index];
+        }),
+      0);
+  };
   
-  auto write_answer = []() {
-    for (const auto& index : _answer) {
+  auto write_answer = [](const std::vector<std::uint16_t>& indice) {
+    for (const auto& index : indice) {
       std::cout << _tiles[index] << std::endl;
     }
   };

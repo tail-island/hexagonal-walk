@@ -1,4 +1,4 @@
-CXXFLAGS  = -Ofast -Wall -std=c++14 -march=native -I/usr/local/include
+CXXFLAGS  = -Ofast -Wall -std=c++14 -march=native -I/usr/local/include -DBOOST_DYNAMIC_BITSET_DONT_USE_FRIENDS
 
 TARGET    = hexagonal-walk
 SRCS      = $(shell ls *.cpp)
