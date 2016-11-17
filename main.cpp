@@ -34,13 +34,16 @@ int main(int argc, char** argv) {
         return beam_search();
       });
     
-    depth_first_search_future.wait_until(starting_time + std::chrono::milliseconds(500));
+    depth_first_search_future.wait_until(starting_time + std::chrono::milliseconds(200));
     depth_first_search.stop();
     auto depth_first_search_result = depth_first_search_future.get();
     
     if (!depth_first_search_result.empty()) {
       fattening.stop();
       fattening_future.get();
+
+      beam_search.stop();
+      beam_search_future.get();
 
       hexagonal_walk::write_answer(depth_first_search_result);
       std::exit(0);

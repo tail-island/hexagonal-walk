@@ -9,6 +9,8 @@
 #include <stack>
 #include <vector>
 
+#define BOOST_DYNAMIC_BITSET_DONT_USE_FRIENDS
+
 #include <boost/dynamic_bitset.hpp>
 #include <boost/range/adaptors.hpp>
 #include <boost/range/algorithm.hpp>
@@ -91,7 +93,7 @@ namespace hexagonal_walk {
   extern std::uint16_t _start_index;
   extern std::vector<std::uint16_t> _distances;
 
-  auto read_question = []() {
+  inline const auto read_question() {
     auto set_adjacencies = []() {
       const auto indice_map = boost::copy_range<std::unordered_map<tile, std::uint16_t>>(
         _tiles |
@@ -292,9 +294,9 @@ namespace hexagonal_walk {
     set_adjacencies();
     set_start_index();
     set_distances();
-  };
+  }
 
-  auto point = [](const std::vector<std::uint16_t>& indice) {
+  inline const auto point(const std::vector<std::uint16_t>& indice) {
     return boost::accumulate(
       indice |
       boost::adaptors::transformed(
@@ -302,11 +304,11 @@ namespace hexagonal_walk {
           return _points[index];
         }),
       0);
-  };
+  }
   
-  auto write_answer = [](const std::vector<std::uint16_t>& indice) {
+  inline const auto write_answer(const std::vector<std::uint16_t>& indice) {
     for (const auto& index : indice) {
       std::cout << _tiles[index] << std::endl;
     }
-  };
+  }
 }
