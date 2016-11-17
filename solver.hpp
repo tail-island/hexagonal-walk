@@ -276,7 +276,6 @@ namespace hexagonal_walk {
 
       while (staying_count++ < 30000 && !_stop) {
         // コピー作成のコストを回避した結果、一つのデータに対して修正と復帰を繰り返すわかりづらいコードになってしまいました……。
-
       
         std::vector<std::uint16_t> next_node;
         auto next_node_score = 0;
