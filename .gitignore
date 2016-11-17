@@ -1,0 +1,5 @@
+hexagonal-walk
+*.o
+*.d
+
+.DS_Store
