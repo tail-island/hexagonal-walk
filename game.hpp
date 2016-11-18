@@ -170,7 +170,7 @@ namespace hexagonal_walk {
       
       std::vector<tile> tiles; tiles.reserve(_tiles.size());
       std::vector<std::uint8_t> points; points.reserve(_points.size());
-      for (auto i = 0; i < _tiles.size(); ++i) {
+      for (auto i = 0; i < static_cast<int>(_tiles.size()); ++i) {
         if (_points[i] > max_point) {
           continue;
         }
@@ -276,7 +276,7 @@ namespace hexagonal_walk {
 
       std::vector<tile> tiles; tiles.reserve(_tiles.size());
       std::vector<std::uint8_t> points; points.reserve(_points.size());
-      for (auto i = 0; i < _tiles.size(); ++i) {
+      for (auto i = 0; i < static_cast<int>(_tiles.size()); ++i) {
         if (!connected_indice_bitset[i]) {
           continue;
         }

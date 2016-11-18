@@ -205,11 +205,11 @@ namespace hexagonal_walk {
       std::default_random_engine rand(random_device());
 
       std::unordered_map<std::uint16_t, std::uint16_t> indice_map;
-      for (auto i = 0; i < indice.size() - 1; ++i) {
+      for (auto i = 0; i < static_cast<int>(indice.size()) - 1; ++i) {
         indice_map.emplace(indice[i], indice[i + 1]);
       }
 
-      for (auto i = 0; i < _tiles.size(); ++i) {
+      for (auto i = 0; i < static_cast<int>(_tiles.size()); ++i) {
         const auto& it = indice_map.find(i);
         if (it != std::end(indice_map)) {
           node[i] = it->second;
@@ -261,7 +261,7 @@ namespace hexagonal_walk {
       const auto path = local_search::path(node);
       const auto cycle = local_search::cycle(path);
 
-      return point(cycle) + cycle.size() + path.size() * 3;
+      return point(cycle) + static_cast<int>(cycle.size()) + static_cast<int>(path.size()) * 3;
     }
 
     const auto compute(const std::vector<std::uint16_t>& initial_node, const std::vector<std::uint16_t>& changeable_indice) const {
@@ -337,7 +337,7 @@ namespace hexagonal_walk {
       std::vector<uint16_t> changeable_indice;
       changeable_indice.reserve(_tiles.size());
 
-      for (auto i = 0; i < _tiles.size(); ++i) {
+      for (auto i = 0; i < static_cast<int>(_tiles.size()); ++i) {
         changeable_indice.emplace_back(i);
       }
 
@@ -410,7 +410,7 @@ namespace hexagonal_walk {
         inserted = false;
 
         auto point_capacity = 1;
-        for (auto i = 0; i < result.size() - 1; ++i) {
+        for (auto i = 0; i < static_cast<int>(result.size()) - 1; ++i) {
           if (_points[result[i]] == point_capacity) {
             ++point_capacity;
           }
