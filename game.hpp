@@ -191,11 +191,11 @@ namespace hexagonal_walk {
       boost::dynamic_bitset<> connected_indice_bitset(_tiles.size());
       connected_indice_bitset[_start_index] = true;
 
-      std::vector<uint16_t> oneway_entrance_indice; oneway_entrance_indice.reserve(_tiles.size());
+      std::vector<std::uint16_t> oneway_entrance_indice; oneway_entrance_indice.reserve(_tiles.size());
 
       // とりあえず、一方通行が「含まれない」エリアを探します。
       {
-        std::queue<uint16_t> queue;
+        std::queue<std::uint16_t> queue;
         for (const auto& adjacency_index : _adjacencies[_start_index]) {
           queue.emplace(adjacency_index);
           connected_indice_bitset[adjacency_index] = true;
@@ -242,7 +242,7 @@ namespace hexagonal_walk {
             continue;
           }
 
-          std::stack<uint16_t> stack;
+          std::stack<std::uint16_t> stack;
           stack.emplace(oneway_entrance_index);
 
           boost::dynamic_bitset<> maybe_connected_indice_bitset(_tiles.size());

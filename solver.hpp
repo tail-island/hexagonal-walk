@@ -58,7 +58,7 @@ namespace hexagonal_walk {
 
     const auto maybe_returnable(const game_state& game_state, const std::uint16_t& next_index) const {
       std::priority_queue<std::tuple<std::uint16_t, std::uint16_t>> queue;
-      queue.emplace(UINT16_MAX - _distances[next_index], next_index);
+      queue.emplace(UINT16_MAX - _distances[next_index], next_index);  // priority_queueは、大きい順です。だから、UINT16_MAXから距離を引いて、ゴールに近い順に処理します。
 
       boost::dynamic_bitset<> indice_bitset(game_state.indice_bitset());
       indice_bitset[next_index] = true;
@@ -243,7 +243,7 @@ namespace hexagonal_walk {
 
         indice.emplace_back(index);
         indice_bitset[index] = true;
-        point_capacity = std::max<uint16_t>(point_capacity, next_index_point + 1);
+        point_capacity = std::max<std::uint16_t>(point_capacity, next_index_point + 1);
       }
 
       return indice;
@@ -281,7 +281,7 @@ namespace hexagonal_walk {
         auto next_node_score = 0;
 
         for (auto i = 0; i < std::min<int>(changeable_indice.size() * 3, 120); ++i) {
-          std::unordered_map<uint16_t, uint16_t> original_values;  // 同じ箇所が複数回変更された場合にも元の値を保持するために、mapを使用します。
+          std::unordered_map<std::uint16_t, std::uint16_t> original_values;  // 同じ箇所が複数回変更された場合にも元の値を保持するために、mapを使用します。
 
           for (auto j = 0; j < 3; ++j) {
             auto index = changeable_indice[rand() % changeable_indice.size()];
@@ -479,7 +479,7 @@ namespace hexagonal_walk {
     }
   };
   
-  class depth_first_search {
+  class depth_first_search {  // 単純なフィールドでの速度勝負に対応するために、巣の深さ有線探索を追加しました。。。
     std::atomic<bool> _stop;
     std::vector<std::uint16_t> _result;
     int _result_point;
