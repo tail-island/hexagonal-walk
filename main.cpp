@@ -128,7 +128,7 @@ int main(int argc, char** argv) {
   const auto result_3 = [&]() {
     const auto changeable_indice = hexagonal_walk::maybe_visitable_indice(result_2);
 
-   hexagonal_walk::local_search local_search_1;
+    hexagonal_walk::local_search local_search_1;
     auto local_search_1_future = std::async(
       std::launch::async,
       [&]() {
