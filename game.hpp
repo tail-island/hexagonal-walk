@@ -235,7 +235,7 @@ namespace hexagonal_walk {
         }
       }
 
-      // 2箇所以上で繋がっていれば、一方通行の先を救済します。その先の一方通行については、計算コストが高いので無視します。
+      // 2箇所以上で繋がっていれば、一方通行の先を救済します。その先に一方通行があっても、計算コストが高いので無視して取り込みます。
       {
         for (const auto& oneway_entrance_index : oneway_entrance_indice) {
           if (connected_indice_bitset[oneway_entrance_index]) {
