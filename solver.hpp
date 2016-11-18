@@ -479,7 +479,7 @@ namespace hexagonal_walk {
     }
   };
   
-  class depth_first_search {  // 単純なフィールドでの速度勝負に対応するために、巣の深さ有線探索を追加しました。。。
+  class depth_first_search {  // 単純なフィールドでの速度勝負に対応するために、素の深さ有線探索を追加しました。。。
     std::atomic<bool> _stop;
     std::vector<std::uint16_t> _result;
     int _result_point;
