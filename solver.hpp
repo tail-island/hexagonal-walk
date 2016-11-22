@@ -222,7 +222,7 @@ namespace hexagonal_walk {
 
     const auto path(const std::vector<std::uint16_t>& node) const {
       std::vector<std::uint16_t> indice;
-      indice.reserve(_tiles.size());
+      indice.reserve(_tiles.size() + 1);
       indice.emplace_back(_start_index);
 
       boost::dynamic_bitset<> indice_bitset(_tiles.size());
@@ -398,7 +398,7 @@ namespace hexagonal_walk {
 
     const auto operator()(const std::vector<std::uint16_t>& indice) {
       std::vector<std::uint16_t> result;
-      result.reserve(_tiles.size());
+      result.reserve(_tiles.size() + 1);
       result = indice;
 
       auto result_bitset = hexagonal_walk::indice_bitset(indice);
