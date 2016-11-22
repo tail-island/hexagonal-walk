@@ -273,7 +273,7 @@ namespace hexagonal_walk {
       auto node = initial_node;
       auto staying_count = 0;
 
-      std::unordered_map<std::uint16_t, std::uint16_t> original_values(120);  // 同じ箇所が複数回変更された場合にも元の値を保持するために、mapを使用します。
+      std::unordered_map<std::uint16_t, std::uint16_t> original_values(3);  // 同じ箇所が複数回変更された場合にも元の値を保持するために、mapを使用します。
 
       while (staying_count++ < 30000 && !_stop) {
         // コピー作成のコストを回避した結果、一つのデータに対して修正と復帰を繰り返すわかりづらいコードになってしまいました……。
