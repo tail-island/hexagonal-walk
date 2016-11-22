@@ -333,7 +333,7 @@ namespace hexagonal_walk {
     }
 
     const auto operator()(const std::vector<std::uint16_t>& indice) {
-      std::vector<uint16_t> changeable_indice;
+      std::vector<std::uint16_t> changeable_indice;
       changeable_indice.reserve(_tiles.size());
 
       for (auto i = 0; i < static_cast<int>(_tiles.size()); ++i) {
