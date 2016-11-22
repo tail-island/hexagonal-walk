@@ -9,7 +9,7 @@ int main(int argc, char** argv) {
 
   std::cin.tie(0);
   std::ios::sync_with_stdio(false);
-  
+
   hexagonal_walk::read_question();
 
   const auto result_1 = [&]() {
@@ -33,11 +33,11 @@ int main(int argc, char** argv) {
       [&]() {
         return beam_search();
       });
-    
+
     depth_first_search_future.wait_until(starting_time + std::chrono::milliseconds(200));
     depth_first_search.stop();
     auto depth_first_search_result = depth_first_search_future.get();
-    
+
     if (!depth_first_search_result.empty()) {
       fattening.stop();
       fattening_future.get();
@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
     fattening_future.wait_until(starting_time + std::chrono::milliseconds(500));
     fattening.stop();
     auto fattening_result = fattening_future.get();
-    
+
     if (fattening_result.size() > 500) {
       beam_search.stop();
       beam_search_future.get();
@@ -63,7 +63,7 @@ int main(int argc, char** argv) {
     beam_search_future.wait_until(starting_time + std::chrono::milliseconds(3000));
     beam_search.stop();
     auto beam_search_result = beam_search_future.get();
-    
+
     return std::max(fattening_result, beam_search_result, [](const auto& result_1, const auto& result_2) { return hexagonal_walk::point(result_1) < hexagonal_walk::point(result_2); });
   }();
 
@@ -155,7 +155,7 @@ int main(int argc, char** argv) {
       [&]() {
         return local_search_4(result_2, changeable_indice);
       });
-    
+
     local_search_1_future.wait_until(starting_time + std::chrono::milliseconds(4600));
     local_search_1.stop();
     auto local_search_1_result = local_search_1_future.get();
@@ -174,9 +174,9 @@ int main(int argc, char** argv) {
 
     return std::max({local_search_1_result, local_search_2_result, local_search_3_result, local_search_4_result}, [](const auto& result_1, const auto& result_2) { return hexagonal_walk::point(result_1) < hexagonal_walk::point(result_2); });
    }();
-  
+
   hexagonal_walk::write_answer(result_3);
   std::exit(0);
-  
+
   return 0;
 }

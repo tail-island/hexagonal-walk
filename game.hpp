@@ -86,7 +86,7 @@ namespace std {
 namespace hexagonal_walk {
   extern std::vector<tile> _tiles;
   extern std::vector<std::uint8_t> _points;
-  
+
   extern std::vector<std::vector<std::uint16_t>> _adjacencies;
   extern std::uint16_t _start_index;
   extern std::vector<std::uint16_t> _distances;
@@ -117,9 +117,9 @@ namespace hexagonal_walk {
                 }) |
               boost::adaptors::transformed(
                 [&](const auto& indice_map_it) { return indice_map_it->second; }));
-          
+
             boost::sort(result);
-            
+
             return result;
           }));
     };
@@ -141,7 +141,7 @@ namespace hexagonal_walk {
 
     _tiles.reserve(20000);
     _points.reserve(20000);
-    
+
     while (std::cin) {
       int x, y, point; char comma;
       std::cin >> x >> comma >> y >> comma >> point;
@@ -164,10 +164,10 @@ namespace hexagonal_walk {
             return i;
           }
         }
-        
+
         return static_cast<std::uint8_t>(point_set.size());
       }();
-      
+
       std::vector<tile> tiles; tiles.reserve(_tiles.size());
       std::vector<std::uint8_t> points; points.reserve(_points.size());
       for (auto i = 0; i < static_cast<int>(_tiles.size()); ++i) {
@@ -178,7 +178,7 @@ namespace hexagonal_walk {
         tiles.emplace_back(_tiles[i]);
         points.emplace_back(_points[i]);
       }
-      
+
       _tiles = std::move(tiles);
       _points = std::move(points);
     }
@@ -256,7 +256,7 @@ namespace hexagonal_walk {
               if (maybe_connected_indice_bitset[adjacency_index]) {
                 continue;
               }
-              
+
               if (connected_indice_bitset[adjacency_index]) {
                 connected_count++;
                 continue;
@@ -284,7 +284,7 @@ namespace hexagonal_walk {
         tiles.emplace_back(_tiles[i]);
         points.emplace_back(_points[i]);
       }
-      
+
       _tiles = std::move(tiles);
       _points = std::move(points);
     }
@@ -303,7 +303,7 @@ namespace hexagonal_walk {
         }),
       0);
   }
-  
+
   inline const auto write_answer(const std::vector<std::uint16_t>& indice) {
     for (const auto& index : indice) {
       std::cout << _tiles[index] << std::endl;

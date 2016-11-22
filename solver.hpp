@@ -121,7 +121,7 @@ namespace hexagonal_walk {
         }
 
         const auto next_index_point = _points[next_index];
-        
+
         if (next_index_point > game_state.point_capacity()) {
           continue;
         }
@@ -153,10 +153,10 @@ namespace hexagonal_walk {
 
       return result;
     }
-    
+
   public:
     beam_search()
-      : _stop(false), _searched_hashes()
+      : _stop(false), _searched_hashes(400000)
     {
       ;
     }
@@ -188,7 +188,7 @@ namespace hexagonal_walk {
 
       return result;
     }
-    
+
     const auto stop() {
       _stop = true;
     }
@@ -203,7 +203,7 @@ namespace hexagonal_walk {
       std::random_device random_device;
       std::default_random_engine rand(random_device());
 
-      std::unordered_map<std::uint16_t, std::uint16_t> indice_map;
+      std::unordered_map<std::uint16_t, std::uint16_t> indice_map(indice.size());
       for (auto i = 0; i < static_cast<int>(indice.size()) - 1; ++i) {
         indice_map.emplace(indice[i], indice[i + 1]);
       }
@@ -219,14 +219,14 @@ namespace hexagonal_walk {
 
       return node;
     }
-    
+
     const auto path(const std::vector<std::uint16_t>& node) const {
       std::vector<std::uint16_t> indice;
       indice.reserve(_tiles.size());
       indice.emplace_back(_start_index);
 
       boost::dynamic_bitset<> indice_bitset(_tiles.size());
-      
+
       std::uint16_t point_capacity = 1;
 
       for (auto index = node[_start_index]; ; index = node[index]) {
@@ -235,7 +235,7 @@ namespace hexagonal_walk {
         }
 
         auto next_index_point = _points[index];
-        
+
         if (next_index_point > point_capacity) {
           break;
         }
@@ -275,12 +275,12 @@ namespace hexagonal_walk {
 
       while (staying_count++ < 30000 && !_stop) {
         // コピー作成のコストを回避した結果、一つのデータに対して修正と復帰を繰り返すわかりづらいコードになってしまいました……。
-      
+
         std::vector<std::uint16_t> next_node;
         auto next_node_score = 0;
 
         for (auto i = 0; i < std::min<int>(changeable_indice.size() * 3, 120); ++i) {
-          std::unordered_map<std::uint16_t, std::uint16_t> original_values;  // 同じ箇所が複数回変更された場合にも元の値を保持するために、mapを使用します。
+          std::unordered_map<std::uint16_t, std::uint16_t> original_values(120);  // 同じ箇所が複数回変更された場合にも元の値を保持するために、mapを使用します。
 
           for (auto j = 0; j < 3; ++j) {
             auto index = changeable_indice[rand() % changeable_indice.size()];
@@ -316,7 +316,7 @@ namespace hexagonal_walk {
 
       return answer_node;
     }
-    
+
   public:
     local_search()
       : _stop(false)
@@ -342,12 +342,12 @@ namespace hexagonal_walk {
 
       return (*this)(indice, changeable_indice);
     }
-    
+
     const auto stop() {
       _stop = true;
     }
   };
-  
+
   inline auto indice_bitset(const std::vector<std::uint16_t>& indice) {
     boost::dynamic_bitset<> result(_tiles.size());
     boost::for_each(
@@ -400,7 +400,7 @@ namespace hexagonal_walk {
       std::vector<std::uint16_t> result;
       result.reserve(_tiles.size());
       result = indice;
-      
+
       auto result_bitset = hexagonal_walk::indice_bitset(indice);
 
       auto inserted_index = 0;
@@ -460,7 +460,7 @@ namespace hexagonal_walk {
     const auto operator()() {
       std::vector<std::uint16_t> indice;
       indice.reserve(3);
-      
+
       indice.emplace_back(_start_index);
       for (const auto& adjacency_index : _adjacencies[_start_index]) {
         if (_points[adjacency_index] == 1) {
@@ -472,12 +472,12 @@ namespace hexagonal_walk {
 
       return (*this)(indice);
     }
-    
+
     const auto stop() {
       _stop = true;
     }
   };
-  
+
   class depth_first_search {  // 単純なフィールドでの速度勝負に対応するために、素の深さ有線探索を追加しました。。。
     std::atomic<bool> _stop;
     std::vector<std::uint16_t> _result;
@@ -486,12 +486,12 @@ namespace hexagonal_walk {
     const auto compute(const std::vector<std::uint16_t>& indice, const std::uint64_t& indice_bitset, const std::uint8_t& point_capacity) {
       if (indice_bitset & static_cast<std::uint64_t>(1) << _start_index) {
         const auto indice_point = point(indice);
-        
+
         if (indice_point > _result_point) {
           _result = indice;
           _result_point = indice_point;
         }
-        
+
         return;
       }
 
