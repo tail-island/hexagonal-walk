@@ -156,7 +156,7 @@ namespace hexagonal_walk {
 
   public:
     beam_search()
-      : _stop(false), _searched_hashes(400000)
+      : _stop(false), _searched_hashes(100000)
     {
       ;
     }
@@ -273,6 +273,8 @@ namespace hexagonal_walk {
       auto node = initial_node;
       auto staying_count = 0;
 
+      std::unordered_map<std::uint16_t, std::uint16_t> original_values(120);  // 同じ箇所が複数回変更された場合にも元の値を保持するために、mapを使用します。
+
       while (staying_count++ < 30000 && !_stop) {
         // コピー作成のコストを回避した結果、一つのデータに対して修正と復帰を繰り返すわかりづらいコードになってしまいました……。
 
@@ -280,7 +282,7 @@ namespace hexagonal_walk {
         auto next_node_score = 0;
 
         for (auto i = 0; i < std::min<int>(changeable_indice.size() * 3, 120); ++i) {
-          std::unordered_map<std::uint16_t, std::uint16_t> original_values(120);  // 同じ箇所が複数回変更された場合にも元の値を保持するために、mapを使用します。
+          original_values.clear();
 
           for (auto j = 0; j < 3; ++j) {
             auto index = changeable_indice[rand() % changeable_indice.size()];
