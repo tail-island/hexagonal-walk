@@ -1,10 +1,10 @@
-#include <future>
+﻿#include <future>
 #include <iostream>
 
 #include "game.hpp"
 #include "solver.hpp"
 
-int main(int argc, char** argv) {
+int wmain(int argc, wchar_t** argv) {
   const auto starting_time = std::chrono::steady_clock::now();
 
   std::cin.tie(0);

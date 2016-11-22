@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <atomic>
 #include <cstdint>
@@ -137,8 +137,7 @@ namespace hexagonal_walk {
           continue;
         }
 
-        std::vector<std::uint16_t> next_indice;
-        next_indice.reserve(game_state.indice().size() + 1);
+        std::vector<std::uint16_t> next_indice(game_state.indice().size() + 1);
         next_indice = game_state.indice();
         next_indice.emplace_back(next_index);
 
@@ -487,6 +486,7 @@ namespace hexagonal_walk {
     const auto compute(const std::vector<std::uint16_t>& indice, const std::uint64_t& indice_bitset, const std::uint8_t& point_capacity) {
       if (indice_bitset & static_cast<std::uint64_t>(1) << _start_index) {
         const auto indice_point = point(indice);
+        
         if (indice_point > _result_point) {
           _result = indice;
           _result_point = indice_point;
@@ -512,8 +512,7 @@ namespace hexagonal_walk {
           continue;
         }
 
-        std::vector<std::uint16_t> next_indice;
-        next_indice.reserve(indice.size() + 1);
+        std::vector<std::uint16_t> next_indice(indice.size() + 1);
         next_indice = indice;
         next_indice.emplace_back(next_index);
 

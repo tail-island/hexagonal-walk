@@ -1,4 +1,4 @@
-#include "game.hpp"
+﻿#include "game.hpp"
 
 std::vector<hexagonal_walk::tile> hexagonal_walk::_tiles;
 std::vector<std::uint8_t> hexagonal_walk::_points;
