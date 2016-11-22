@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<!-- saved from url=(0062)http://techsym.public.unisys.co.jp/ss/2016/2016prog/index.html -->
+<html lang="ja-JP"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	
+	<title>六角タイルを塗りつぶせ！</title>
+	<script src="./hexagonal-painter_files/hex.js" charset="UTF-8"></script>
+        <script>
+            function drawHex(){
+                document.getElementById('targetText').innerHTML = "";
+                
+                var canvas = document.getElementById("c");
+                var context = canvas.getContext('2d');
+                var radius = 30;
+                
+                context.clearRect(0,0,3000,1100);
+                
+                //入力
+                var mapText = document.forms.id_mainform.id_textArea_field.value;
+                arr = mapText.split(/\r\n|\r|\n/);
+                
+                //半径計算
+                var mapMaxX = 0;
+                var mapMaxY = 0;
+                for (var k = 0; k < arr.length; k++)
+                {
+                    var hexData = arr[k].split(/,/);
+                    if (hexData.length != 3)
+                    {
+                        continue;
+                    }
+                    var tempX = parseInt(hexData[0]);
+                    var tempY = parseInt(hexData[1]);
+                    if (tempX > mapMaxX)
+                    {
+                        mapMaxX = tempX;
+                    }
+                    if (tempY > mapMaxY)
+                    {
+                        mapMaxY = tempY;
+                    }
+                }
+                if (mapMaxX > 36)
+                {
+                    radius = 1980 / (1.732 * mapMaxX);
+                }
+                if (mapMaxY > 22)
+                {
+                    if (radius > 1100 / (1.9 * mapMaxY))
+                    {
+                        radius = 1100 / (1.9 * mapMaxY);
+                    }
+                }
+                
+                //描写ピッチ
+                var pitch = (radius * Math.sqrt(3)) + 2;
+                
+                var ansText = document.forms.id_mainform.id_textArea_answer.value;
+                arr2 = ansText.split(/\r\n|\r|\n/);
+                
+                //データ保持用連想配列
+                var mapData = {};
+                
+                //チェックフラグ 0なら問題なし
+                var isMapValid = 0;
+                
+                var draw = function() {
+                    for (var i=0; i<arr.length; ++i)
+                    {
+                        //データ取得
+                        hexData = arr[i].split(/,/);
+                        var xCo = 0;
+                        var yCo = 0;
+                        var num = 0;
+                        if (hexData.length == 3)
+                        {
+                            xCo = hexData[0];
+                            yCo = hexData[1];
+                            num = hexData[2];
+                            
+                            //数値かどうかチェック
+                            if (xCo.match(/^([1-9][0-9]*|0)$/) == null || yCo.match(/^([1-9][0-9]*|0)$/) == null || num.match(/^([1-9][0-9]*|0)$/) == null)
+                            {
+                                document.getElementById('targetText').innerHTML = "フィールド" + (i + 1) + "行目のフォーマットが不正です";
+                                isMapValid = 1;
+                            }
+                            //数値の範囲をチェック
+                            if(xCo < 0 || xCo > 199 || yCo < 0 || yCo > 99 || num < 0 || num > 99)
+                            {
+                                document.getElementById('targetText').innerHTML = "フィールド" + (i + 1) + "行目の値の範囲が不正です";
+                                isMapValid = 1;
+                            }
+                            
+                            //重複チェック
+                            if(xCo + "-" + yCo in mapData)
+                            {
+                                document.getElementById('targetText').innerHTML = "フィールド" + (i + 1) + "行目のタイル(" + xCo + "," + yCo + ")は定義済です";
+                                isMapValid = 1;
+                            }
+                            mapData[xCo + "-" + yCo] = num; //マップデータ追加
+                            
+                        }else{
+                            //空白行のみ許可
+                            if (arr[i] == "")
+                            {
+                                continue;
+                            }else{
+                                document.getElementById('targetText').innerHTML = "フィールド" + (i + 1) + "行目のフォーマットが不正です";
+                                isMapValid = 1;
+                            }
+                        }
+                        var hue = 360 / 10 * num;
+                        var sat = (num < 0 || num > 99) ? "0%" : "75%";
+                        
+                        //色の設定
+                        context.fillStyle = "hsl(" + hue + ", " + sat + ", 60%)";
+                        context.strokeStyle = "hsl(" + hue + ", " + sat + ", 20%)";
+                        
+                        //描写位置
+                        var x = xCo * pitch + 20 + radius + (yCo * (pitch / 2));
+                        var y = yCo * (radius * 3 / 2 + 2) + radius;
+                        
+                        // ポリゴンを塗りつぶし描画
+                        fillHex(context, x, y, radius);
+                        // ポリゴンをストローク描画
+                        strokeHex(context, x, y, radius);
+                        // 文字を描画
+                        context.fillStyle = "hsl(" + hue + ", " + sat + ", 20%)";
+                        fillHexText(context, x, y, num, radius);
+                    }
+                    
+                    //チェック
+                    var startTile = 0;
+                    for (var k in mapData)
+                    {
+                        if (mapData[k] == 0)
+                        {
+                            startTile += 1;
+                        }
+                    }
+                    if (startTile != 1){
+                        document.getElementById('targetText').innerHTML = "スタートタイルの枚数が不正です";
+                        isMapValid = 1;
+                    }
+                };
+                draw();
+                
+                if (isMapValid != 0){
+                    return;
+                }
+                
+                var j = 0;
+                var interval = 200;
+                if (arr2.length > 50){
+                    interval = 10000 / arr2.length;
+                }
+                var maxNum = 1;
+                var totalScore = 0;
+                var visitedTile = [];
+                var lastX = -1;
+                var lastY = -1;
+                
+                context.beginPath();
+                var play = function(){
+                    context.lineWidth = 5;
+                    if (j < arr2.length)
+                    {
+                        context.strokeStyle = "hsl(7, 70%, 31%)";
+                        
+                        //データ取得
+                        hexData = arr2[j].split(/,/);
+                        var xCo = -1;
+                        var yCo = -1;
+                        if (hexData.length == 2)
+                        {
+                            xCo = hexData[0];
+                            yCo = hexData[1];
+                            
+                            //数値かどうかチェック
+                            if (xCo.match(/^([1-9][0-9]*|0)$/) == null || yCo.match(/^([1-9][0-9]*|0)$/) == null)
+                            {
+                                //Error!(数値でない値が回答に入っている)
+                                context.lineWidth = 1;
+                                document.getElementById('targetText').innerHTML = "回答" + (j + 1) + "行目のフォーマットが不正です";
+                                clearInterval(timerID);
+                                return;
+                            }
+                        }else{
+                            if (arr2[j] == "")
+                            {
+                                clearInterval(timerID);
+                                context.lineWidth = 1;
+                                if (mapData[lastX + "-" + lastY] != 0)
+                                {
+                                    //Error!!(最終手がスタートタイルではない)
+                                    document.getElementById('targetText').innerHTML = "終端がスタートタイルではありません";
+                                    clearInterval(timerID);
+                                }else{
+                                    document.getElementById('targetText').innerHTML = "終了しました。スコアは" + totalScore + "点です";
+                                }
+                            }else{
+                                //Error!(カラム数不正)
+                                context.lineWidth = 1;
+                                document.getElementById('targetText').innerHTML = "回答" + (j + 1) + "行目のフォーマットが不正です";
+                                clearInterval(timerID);
+                            }
+                            return;
+                        }
+                        
+                        //有効判定
+                        if (xCo + "-" + yCo in mapData){
+                            var n = mapData[xCo + "-" + yCo];
+                            
+                            if (n == maxNum)
+                            {
+                                maxNum = maxNum + 1;
+                            }
+                            
+                            if (n > maxNum){
+                                //Error!!(まだ進入不可ナンバー)
+                                document.getElementById('targetText').innerHTML = "(" + xCo + "," + yCo + ")は" + maxNum + "ポイントより大きいため進入できません";
+                                clearInterval(timerID);
+                            }else if (visitedTile.indexOf(xCo + "-" + yCo) != -1 && n != 0){
+                                //Error!!(訪問済)
+                                document.getElementById('targetText').innerHTML = "(" + xCo + "," + yCo + ")は訪問済です";
+                                clearInterval(timerID);
+                            }else if (isNextHex(xCo, yCo, lastX, lastY) == false && lastX != -1){
+                                //Error!!(隣接していない)
+                                document.getElementById('targetText').innerHTML = "(" + xCo + "," + yCo + ")には移動できません";
+                                clearInterval(timerID);
+                            }else{
+                                //document.getElementById('targetText').innerHTML = "(" + xCo + "," + yCo + ")に移動します";
+                            }
+                        }else{
+                            // Error!!(タイルなし)
+                            document.getElementById('targetText').innerHTML = "(" + xCo + "," + yCo + ")にはタイルがありません";
+                            clearInterval(timerID);
+                        }
+                        
+                        //訪問済み
+                        visitedTile.push(xCo + "-" + yCo);
+                        //得点
+                        totalScore += parseInt(mapData[xCo + "-" + yCo]);
+                        
+                        //描写位置
+                        var x = xCo * pitch + 20 + radius + (yCo * (pitch / 2));
+                        var y = yCo * (radius * 3 / 2 + 2) + radius;
+                        
+                        if (j == 0)
+                        {
+                            context.moveTo(x, y);
+                            
+                            //初手チェック
+                            if (mapData[xCo + "-" + yCo] != 0){
+                                //Error!!(初手がスタートタイルではない)
+                                document.getElementById('targetText').innerHTML = "開始位置がスタートタイルではありません";
+                                clearInterval(timerID);
+                            }
+                        }else{
+                            context.lineTo(x, y);
+                        }
+                        
+                        context.stroke();
+                        
+                        j = j + 1;
+                        lastX = xCo;
+                        lastY = yCo;
+                    }else{
+                        //ループ終了
+                        clearInterval(timerID);
+                        
+                        if (mapData[lastX + "-" + lastY] != 0)
+                        {
+                            //Error!!(最終手がスタートタイルではない)
+                            document.getElementById('targetText').innerHTML = "終端がスタートタイルではありません";
+                            clearInterval(timerID);
+                        }else{
+                            document.getElementById('targetText').innerHTML = "終了しました。スコアは" + totalScore + "点です";
+                        }
+                    }
+                    context.lineWidth = 1;
+                };
+                var timerID = setInterval(play,interval);
+                
+            };
+        </script>
+</head>
+<body>
+  <h2>六角タイルを塗りつぶせ！</h2>
+  <form name="mainform" id="id_mainform" action="http://techsym.public.unisys.co.jp/ss/2016/2016prog/index.html">
+    <div style="float:left;margin:5px">
+      <label for="id_textArea_field">フィールド：</label><br>
+      <textarea name="textArea_field" id="id_textArea_field" type="text" value="" style="height:10em;">0,2,1
+1,1,4
+1,3,1
+3,2,0
+2,3,1
+2,4,2
+3,4,1
+3,3,1
+4,1,5
+4,2,3</textarea>
+    </div>
+    <div style="float:left;margin:5px">
+      <label for="id_textArea_answer">回答：</label><br>
+      <textarea name="textArea_answer" id="id_textArea_answer" type="text" value="" style="height:10em;">3,2
+2,3
+2,4
+3,3
+4,2
+3,2</textarea>
+    </div>
+    <br>
+    <input type="button" value="実行" onclick="drawHex();">
+  </form>
+  <div id="targetText">フィールド欄と回答欄を入力し、「実行」ボタンを押してください。</div>
+  <br>
+  <canvas id="c" width="3000" height="1100"></canvas>
+  
+
+
+</body></html>
