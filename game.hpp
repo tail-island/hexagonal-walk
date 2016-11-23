@@ -294,7 +294,8 @@ namespace hexagonal_walk {
     set_distances();
   }
 
-  inline const auto point(const std::vector<std::uint16_t>& indice) {
+  template <typename T>
+  inline const auto point(const T& indice) {
     return boost::accumulate(
       indice |
       boost::adaptors::transformed(

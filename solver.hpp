@@ -8,11 +8,13 @@
 #include <unordered_set>
 #include <vector>
 
+#include <boost/container/static_vector.hpp>
 #include <boost/dynamic_bitset.hpp>
 #include <boost/functional/hash.hpp>
 #include <boost/range/adaptors.hpp>
 #include <boost/range/algorithm.hpp>
 #include <boost/range/algorithm_ext.hpp>
+#include <boost/range/iterator_range.hpp>
 #include <boost/range/numeric.hpp>
 
 #include "game.hpp"
@@ -109,8 +111,7 @@ namespace hexagonal_walk {
     }
 
     const auto next_game_states(const game_state& game_state) {
-      std::vector<beam_search::game_state> result;
-      result.reserve(6);
+      std::vector<beam_search::game_state> result; result.reserve(6);
 
       std::size_t indice_bitset_hash = 0;
       boost::hash_combine(indice_bitset_hash, boost::hash_value(game_state.indice_bitset().m_bits));
@@ -137,7 +138,7 @@ namespace hexagonal_walk {
           continue;
         }
 
-        std::vector<std::uint16_t> next_indice(game_state.indice().size() + 1);
+        std::vector<std::uint16_t> next_indice; next_indice.reserve(game_state.indice().size() + 1);
         next_indice = game_state.indice();
         next_indice.emplace_back(next_index);
 
@@ -221,8 +222,7 @@ namespace hexagonal_walk {
     }
 
     const auto path(const std::vector<std::uint16_t>& node) const {
-      std::vector<std::uint16_t> indice;
-      indice.reserve(_tiles.size() + 1);
+      std::vector<std::uint16_t> indice; indice.reserve(_tiles.size() + 1);
       indice.emplace_back(_start_index);
 
       boost::dynamic_bitset<> indice_bitset(_tiles.size());
@@ -278,7 +278,7 @@ namespace hexagonal_walk {
       while (staying_count++ < 30000 && !_stop) {
         // コピー作成のコストを回避した結果、一つのデータに対して修正と復帰を繰り返すわかりづらいコードになってしまいました……。
 
-        std::vector<std::uint16_t> next_node;
+        std::vector<std::uint16_t> next_node; next_node.reserve(_tiles.size());
         auto next_node_score = 0;
 
         for (auto i = 0; i < std::min<int>(changeable_indice.size() * 3, 120); ++i) {
@@ -335,9 +335,7 @@ namespace hexagonal_walk {
     }
 
     const auto operator()(const std::vector<std::uint16_t>& indice) {
-      std::vector<std::uint16_t> changeable_indice;
-      changeable_indice.reserve(_tiles.size());
-
+      std::vector<std::uint16_t> changeable_indice; changeable_indice.reserve(_tiles.size());
       for (auto i = 0; i < static_cast<int>(_tiles.size()); ++i) {
         changeable_indice.emplace_back(i);
       }
@@ -362,8 +360,7 @@ namespace hexagonal_walk {
   }
 
   inline auto maybe_visitable_indice(const std::vector<std::uint16_t>& indice) {
-    std::vector<std::uint16_t> result;
-    result.reserve(_tiles.size());
+    std::vector<std::uint16_t> result; result.reserve(_tiles.size());
 
     const auto& indice_bitset = hexagonal_walk::indice_bitset(indice);
 
@@ -399,8 +396,7 @@ namespace hexagonal_walk {
     }
 
     const auto operator()(const std::vector<std::uint16_t>& indice) {
-      std::vector<std::uint16_t> result;
-      result.reserve(_tiles.size() + 1);
+      std::vector<std::uint16_t> result; result.reserve(_tiles.size() + 1);
       result = indice;
 
       auto result_bitset = hexagonal_walk::indice_bitset(indice);
@@ -460,8 +456,7 @@ namespace hexagonal_walk {
     }
 
     const auto operator()() {
-      std::vector<std::uint16_t> indice;
-      indice.reserve(3);
+      std::vector<std::uint16_t> indice; indice.reserve(3);
 
       indice.emplace_back(_start_index);
       for (const auto& adjacency_index : _adjacencies[_start_index]) {
@@ -482,10 +477,10 @@ namespace hexagonal_walk {
 
   class depth_first_search {  // 単純なフィールドでの速度勝負に対応するために、素の深さ有線探索を追加しました。。。
     std::atomic<bool> _stop;
-    std::vector<std::uint16_t> _result;
+    boost::container::static_vector<std::uint16_t, 64 + 1> _result;
     int _result_point;
-
-    const auto compute(const std::vector<std::uint16_t>& indice, const std::uint64_t& indice_bitset, const std::uint8_t& point_capacity) {
+    
+    const auto compute(const boost::container::static_vector<std::uint16_t, 64 + 1>& indice, const std::uint64_t& indice_bitset, const std::uint8_t& point_capacity) {
       if (indice_bitset & static_cast<std::uint64_t>(1) << _start_index) {
         const auto indice_point = point(indice);
 
@@ -514,7 +509,7 @@ namespace hexagonal_walk {
           continue;
         }
 
-        std::vector<std::uint16_t> next_indice(indice.size() + 1);
+        boost::container::static_vector<std::uint16_t, 64 + 1> next_indice;
         next_indice = indice;
         next_indice.emplace_back(next_index);
 
@@ -530,15 +525,17 @@ namespace hexagonal_walk {
     }
 
     const auto operator()() {
-      if (_tiles.size() <= 64) {
-        compute(std::vector<std::uint16_t>{_start_index}, static_cast<std::uint64_t>(0), 1);
+      if (_tiles.size() > 64) {
+        return std::vector<std::uint16_t>{};
       }
+
+      compute(boost::container::static_vector<std::uint16_t, 64 + 1>{_start_index}, static_cast<std::uint64_t>(0), 1);
 
       if (_stop) {
-        _result.clear();
+        return std::vector<std::uint16_t>{};
       }
 
-      return _result;
+      return boost::copy_range<std::vector<std::uint16_t>>(_result);
     }
 
     const auto stop() {
