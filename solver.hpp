@@ -171,7 +171,7 @@ namespace hexagonal_walk {
       while (!queue.empty() && !_stop) {
         std::priority_queue<game_state> next_queue;
 
-        for (auto i = 0; i < 300 && !queue.empty(); ++i) {
+        for (auto i = 0; i < 360 && !queue.empty(); ++i) {
           const auto game_state = queue.top(); queue.pop();
 
           if (game_state.is_goaled()) {
