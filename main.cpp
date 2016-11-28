@@ -139,21 +139,21 @@ int main(int argc, char** argv) {
     auto local_search_2_future = std::async(
       std::launch::async,
       [&]() {
-        return local_search_2(result_2, changeable_indice);
+        return local_search_2(result_2);
       });
 
     hexagonal_walk::local_search local_search_3;
     auto local_search_3_future = std::async(
       std::launch::async,
       [&]() {
-        return local_search_3(result_2, changeable_indice);
+        return local_search_3(result_2);
       });
 
     hexagonal_walk::local_search local_search_4;
     auto local_search_4_future = std::async(
       std::launch::async,
       [&]() {
-        return local_search_4(result_2, changeable_indice);
+        return local_search_4(result_2);
       });
 
     local_search_1_future.wait_until(starting_time + std::chrono::milliseconds(4600));
