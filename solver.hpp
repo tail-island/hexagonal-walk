@@ -164,6 +164,7 @@ namespace hexagonal_walk {
 
     const auto operator()() {
       std::vector<std::uint16_t> result;
+      int result_point = 0;
 
       std::priority_queue<game_state> queue;
       queue.emplace(std::vector<std::uint16_t>{_start_index}, boost::dynamic_bitset<>(_tiles.size()), 1, 0.0f);
@@ -175,7 +176,13 @@ namespace hexagonal_walk {
           const auto game_state = queue.top(); queue.pop();
 
           if (game_state.is_goaled()) {
-            result = std::move(game_state.indice());
+            const auto game_state_point = point(game_state.indice());
+
+            if (game_state_point > result_point) {
+              result = std::move(game_state.indice());
+              result_point = game_state_point;
+            }
+
             continue;
           }
 
@@ -479,7 +486,7 @@ namespace hexagonal_walk {
     std::atomic<bool> _stop;
     boost::container::static_vector<std::uint16_t, 64 + 1> _result;
     int _result_point;
-    
+
     const auto compute(const boost::container::static_vector<std::uint16_t, 64 + 1>& indice, const std::uint64_t& indice_bitset, const std::uint8_t& point_capacity) {
       if (indice_bitset & static_cast<std::uint64_t>(1) << _start_index) {
         const auto indice_point = point(indice);

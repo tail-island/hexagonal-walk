@@ -139,7 +139,7 @@ int main(int argc, char** argv) {
     auto local_search_2_future = std::async(
       std::launch::async,
       [&]() {
-        return local_search_2(result_2);
+        return local_search_2(result_2, changeable_indice);
       });
 
     hexagonal_walk::local_search local_search_3;
