@@ -40,10 +40,10 @@ int main(int argc, char** argv) {
 
     if (!depth_first_search_result.empty()) {
       fattening.stop();
-      fattening_future.get();
+      // fattening_future.get();
 
       beam_search.stop();
-      beam_search_future.get();
+      // beam_search_future.get();
 
       hexagonal_walk::write_answer(depth_first_search_result);
       std::exit(0);
