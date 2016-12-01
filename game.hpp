@@ -9,6 +9,7 @@
 #include <stack>
 #include <vector>
 
+#include <boost/container/static_vector.hpp>
 #include <boost/dynamic_bitset.hpp>
 #include <boost/range/adaptors.hpp>
 #include <boost/range/algorithm.hpp>
@@ -83,7 +84,7 @@ namespace hexagonal_walk {
   extern std::vector<tile> _tiles;
   extern std::vector<std::uint8_t> _points;
 
-  extern std::vector<std::vector<std::uint16_t>> _adjacencies;
+  extern std::vector<boost::container::static_vector<std::uint16_t, 6>> _adjacencies;
   extern std::uint16_t _start_index;
   extern std::vector<std::uint16_t> _distances;
 
@@ -97,27 +98,43 @@ namespace hexagonal_walk {
             return std::make_pair(indexed_tile.value(), indexed_tile.index());
           }));
 
-      _adjacencies = boost::copy_range<std::vector<std::vector<std::uint16_t>>>(
-        _tiles |
-        boost::adaptors::transformed(
-          [&](const auto& tile) {
-            auto result = boost::copy_range<std::vector<std::uint16_t>>(
-              tile.around_tiles() |
-              boost::adaptors::transformed(
-                [&](const auto& around_tile) {
-                  return indice_map.find(around_tile);
-                }) |
-              boost::adaptors::filtered(
-                [&](const auto& indice_map_it) {
-                  return indice_map_it != std::end(indice_map);
-                }) |
-              boost::adaptors::transformed(
-                [&](const auto& indice_map_it) { return indice_map_it->second; }));
+      // vector<vector>だとメモリが連続しないので、CPUのキャッシュにのる可能性が減ります。。。なので、vector<static_vector>に変更します。
+      // _adjacencies = boost::copy_range<std::vector<std::vector<std::uint16_t>>>(
+      //   _tiles |
+      //   boost::adaptors::transformed(
+      //     [&](const auto& tile) {
+      //       auto result = boost::copy_range<std::vector<std::uint16_t>>(
+      //         tile.around_tiles() |
+      //         boost::adaptors::transformed(
+      //           [&](const auto& around_tile) {
+      //             return indice_map.find(around_tile);
+      //           }) |
+      //         boost::adaptors::filtered(
+      //           [&](const auto& indice_map_it) {
+      //             return indice_map_it != std::end(indice_map);
+      //           }) |
+      //         boost::adaptors::transformed(
+      //           [&](const auto& indice_map_it) { return indice_map_it->second; }));
+      //
+      //       boost::sort(result);
+      //
+      //       return result;
+      //     }));
 
-            boost::sort(result);
+      _adjacencies = std::vector<boost::container::static_vector<std::uint16_t, 6>>(_tiles.size());
 
-            return result;
-          }));
+      // static_vectorはムーブができません。copy_rangeだと効率が悪そうなので、直接構築します。
+      for (const auto& indexed_tile : _tiles | boost::adaptors::indexed()) {
+        for (const auto& around_tile : indexed_tile.value().around_tiles()) {
+          const auto& indice_map_it = indice_map.find(around_tile);
+          if (indice_map_it == std::end(indice_map)) {
+            continue;
+          }
+          _adjacencies[indexed_tile.index()].push_back(indice_map_it->second);
+        }
+
+        boost::sort(_adjacencies[indexed_tile.index()]);
+      }
     };
 
     auto set_start_index = []() {
