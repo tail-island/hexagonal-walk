@@ -130,7 +130,7 @@ namespace hexagonal_walk {
           if (indice_map_it == std::end(indice_map)) {
             continue;
           }
-          _adjacencies[indexed_tile.index()].push_back(indice_map_it->second);
+          _adjacencies[indexed_tile.index()].emplace_back(indice_map_it->second);
         }
 
         boost::sort(_adjacencies[indexed_tile.index()]);
