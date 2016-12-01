@@ -24,25 +24,25 @@ namespace hexagonal_walk {
     };
 
   public:
-    tile(const std::uint8_t& x, const std::uint8_t& y)
+    tile(const std::uint8_t& x, const std::uint8_t& y) noexcept
       : _values{y, x}
     {
       ;
     }
 
-    const auto& x() const {
+    const auto& x() const noexcept {
       return _values[1];
     }
 
-    const auto& y() const {
+    const auto& y() const noexcept {
       return _values[0];
     }
 
-    const auto around_tiles() const {
+    const auto around_tiles() const noexcept {
       return std::array<tile, 6>{tile(x() + 1, y()), tile(x() + 1, y() - 1), tile(x(), y() - 1), tile(x() - 1, y()), tile(x() - 1, y() + 1), tile(x(), y() + 1)};
     }
 
-    const auto operator==(const tile& other) const {
+    const auto operator==(const tile& other) const noexcept {
       return _value == other._value;
     }
 
@@ -59,13 +59,13 @@ namespace hexagonal_walk {
     const int _cube_y;
 
   public:
-    cubed_tile(const tile& tile)
+    cubed_tile(const tile& tile) noexcept
       : _cube_x(tile.x()), _cube_z(tile.y()), _cube_y(0 - _cube_x - _cube_z)
     {
       ;
     }
 
-    int distance(const cubed_tile& other) const {
+    int distance(const cubed_tile& other) const noexcept {
       return (std::abs(_cube_x - other._cube_x) + std::abs(_cube_y - other._cube_y) + std::abs(_cube_z - other._cube_z)) / 2;
     }
   };
@@ -88,7 +88,7 @@ namespace hexagonal_walk {
   extern std::uint16_t _start_index;
   extern std::vector<std::uint16_t> _distances;
 
-  inline const auto read_question() {
+  inline const auto read_question() noexcept {
     auto set_adjacencies = []() {
       const auto indice_map = boost::copy_range<std::unordered_map<tile, std::uint16_t>>(
         _tiles |
@@ -308,7 +308,7 @@ namespace hexagonal_walk {
   }
 
   template <typename T>
-  inline const auto point(const T& indice) {
+  inline const auto point(const T& indice) noexcept {
     return boost::accumulate(
       indice |
       boost::adaptors::transformed(
@@ -318,7 +318,7 @@ namespace hexagonal_walk {
       0);
   }
 
-  inline const auto write_answer(const std::vector<std::uint16_t>& indice) {
+  inline const auto write_answer(const std::vector<std::uint16_t>& indice) noexcept {
     for (const auto& index : indice) {
       std::cout << _tiles[index] << std::endl;
     }

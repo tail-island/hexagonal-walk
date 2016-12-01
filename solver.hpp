@@ -31,34 +31,34 @@ namespace hexagonal_walk {
       float _score;
 
     public:
-      game_state(std::vector<std::uint16_t>&& indice, boost::dynamic_bitset<>&& indice_bitset, const std::uint16_t& point_capacity, const float& score)
+      game_state(std::vector<std::uint16_t>&& indice, boost::dynamic_bitset<>&& indice_bitset, const std::uint16_t& point_capacity, const float& score) noexcept
         : _indice(indice), _indice_bitset(indice_bitset), _point_capacity(point_capacity), _score(score)
       {
         ;
       }
 
-      const auto& indice() const {
+      const auto& indice() const noexcept {
         return _indice;
       }
 
-      const auto& indice_bitset() const {
+      const auto& indice_bitset() const noexcept {
         return _indice_bitset;
       }
 
-      const auto& point_capacity() const {
+      const auto& point_capacity() const noexcept {
         return _point_capacity;
       }
 
-      const auto is_goaled() const {
+      const auto is_goaled() const noexcept {
         return _indice_bitset[_start_index];
       }
 
-      const auto operator<(const game_state& other) const {
+      const auto operator<(const game_state& other) const noexcept {
         return _score < other._score;
       }
     };
 
-    const auto maybe_returnable(const game_state& game_state, const std::uint16_t& next_index) const {
+    const auto maybe_returnable(const game_state& game_state, const std::uint16_t& next_index) const noexcept {
       std::priority_queue<std::tuple<std::uint16_t, std::uint16_t>> queue;
       queue.emplace(UINT16_MAX - _distances[next_index], next_index);  // priority_queueは、大きい順です。だから、UINT16_MAXから距離を引いて、ゴールに近い順に処理します。
 
@@ -86,7 +86,7 @@ namespace hexagonal_walk {
       return false;
     }
 
-    const auto score(const std::vector<std::uint16_t>& indice, const boost::dynamic_bitset<>& indice_bitset) const {
+    const auto score(const std::vector<std::uint16_t>& indice, const boost::dynamic_bitset<>& indice_bitset) const noexcept {
       return
         boost::accumulate(
           indice |
@@ -110,7 +110,7 @@ namespace hexagonal_walk {
           0.0f);
     }
 
-    const auto next_game_states(const game_state& game_state) {
+    const auto next_game_states(const game_state& game_state) noexcept {
       std::vector<beam_search::game_state> result; result.reserve(6);
 
       std::size_t indice_bitset_hash = 0;
@@ -156,13 +156,13 @@ namespace hexagonal_walk {
     }
 
   public:
-    beam_search()
+    beam_search() noexcept
       : _stop(false), _searched_hashes(100000)
     {
       ;
     }
 
-    const auto operator()() {
+    const auto operator()() noexcept {
       std::vector<std::uint16_t> result;
       int result_point = 0;
 
@@ -197,7 +197,7 @@ namespace hexagonal_walk {
       return result;
     }
 
-    const auto stop() {
+    const auto stop() noexcept {
       _stop = true;
     }
   };
@@ -205,7 +205,7 @@ namespace hexagonal_walk {
   class local_search {
     std::atomic<bool> _stop;
 
-    const auto node(const std::vector<std::uint16_t>& indice) const {
+    const auto node(const std::vector<std::uint16_t>& indice) const noexcept {
       std::vector<std::uint16_t> node(_tiles.size());
 
       std::random_device random_device;
@@ -228,7 +228,7 @@ namespace hexagonal_walk {
       return node;
     }
 
-    const auto path(const std::vector<std::uint16_t>& node) const {
+    const auto path(const std::vector<std::uint16_t>& node) const noexcept {
       std::vector<std::uint16_t> indice; indice.reserve(_tiles.size() + 1);
       indice.emplace_back(_start_index);
 
@@ -255,7 +255,7 @@ namespace hexagonal_walk {
       return indice;
     }
 
-    const auto cycle(const std::vector<std::uint16_t>& path) const {
+    const auto cycle(const std::vector<std::uint16_t>& path) const noexcept {
       if (path.front() == path.back()) {
         return path;
       }
@@ -263,14 +263,14 @@ namespace hexagonal_walk {
       return std::vector<std::uint16_t>{_start_index};
     }
 
-    const auto score(const std::vector<std::uint16_t>& node) const {
+    const auto score(const std::vector<std::uint16_t>& node) const noexcept {
       const auto path = local_search::path(node);
       const auto cycle = local_search::cycle(path);
 
       return point(cycle) + static_cast<int>(cycle.size()) + static_cast<int>(path.size()) * 3;
     }
 
-    const auto compute(const std::vector<std::uint16_t>& initial_node, const std::vector<std::uint16_t>& changeable_indice) const {
+    const auto compute(const std::vector<std::uint16_t>& initial_node, const std::vector<std::uint16_t>& changeable_indice) const noexcept {
       std::random_device random_device;
       std::default_random_engine rand(random_device());
 
@@ -327,13 +327,13 @@ namespace hexagonal_walk {
     }
 
   public:
-    local_search()
+    local_search() noexcept
       : _stop(false)
     {
       ;
     }
 
-    const auto operator()(const std::vector<std::uint16_t>& indice, const std::vector<std::uint16_t>& changeable_indice) {
+    const auto operator()(const std::vector<std::uint16_t>& indice, const std::vector<std::uint16_t>& changeable_indice) noexcept {
       if (changeable_indice.empty()) {
         return indice;
       }
@@ -341,7 +341,7 @@ namespace hexagonal_walk {
       return cycle(path(compute(node(indice), changeable_indice)));
     }
 
-    const auto operator()(const std::vector<std::uint16_t>& indice) {
+    const auto operator()(const std::vector<std::uint16_t>& indice) noexcept {
       std::vector<std::uint16_t> changeable_indice; changeable_indice.reserve(_tiles.size());
       for (auto i = 0; i < static_cast<int>(_tiles.size()); ++i) {
         changeable_indice.emplace_back(i);
@@ -350,12 +350,12 @@ namespace hexagonal_walk {
       return (*this)(indice, changeable_indice);
     }
 
-    const auto stop() {
+    const auto stop() noexcept {
       _stop = true;
     }
   };
 
-  inline auto indice_bitset(const std::vector<std::uint16_t>& indice) {
+  inline auto indice_bitset(const std::vector<std::uint16_t>& indice) noexcept {
     boost::dynamic_bitset<> result(_tiles.size());
     boost::for_each(
       indice,
@@ -366,7 +366,7 @@ namespace hexagonal_walk {
     return result;
   }
 
-  inline auto maybe_visitable_indice(const std::vector<std::uint16_t>& indice) {
+  inline auto maybe_visitable_indice(const std::vector<std::uint16_t>& indice) noexcept {
     std::vector<std::uint16_t> result; result.reserve(_tiles.size());
 
     const auto& indice_bitset = hexagonal_walk::indice_bitset(indice);
@@ -396,13 +396,13 @@ namespace hexagonal_walk {
     std::atomic<bool> _stop;
 
   public:
-    fattening()
+    fattening() noexcept
       : _stop(false)
     {
       ;
     }
 
-    const auto operator()(const std::vector<std::uint16_t>& indice) {
+    const auto operator()(const std::vector<std::uint16_t>& indice) noexcept {
       std::vector<std::uint16_t> result; result.reserve(_tiles.size() + 1);
       result = indice;
 
@@ -462,7 +462,7 @@ namespace hexagonal_walk {
       return result;
     }
 
-    const auto operator()() {
+    const auto operator()() noexcept {
       std::vector<std::uint16_t> indice; indice.reserve(3);
 
       indice.emplace_back(_start_index);
@@ -477,7 +477,7 @@ namespace hexagonal_walk {
       return (*this)(indice);
     }
 
-    const auto stop() {
+    const auto stop() noexcept {
       _stop = true;
     }
   };
@@ -487,7 +487,7 @@ namespace hexagonal_walk {
     boost::container::static_vector<std::uint16_t, 64 + 1> _result;
     int _result_point;
 
-    const auto compute(const boost::container::static_vector<std::uint16_t, 64 + 1>& indice, const std::uint64_t& indice_bitset, const std::uint8_t& point_capacity) {
+    const auto compute(const boost::container::static_vector<std::uint16_t, 64 + 1>& indice, const std::uint64_t& indice_bitset, const std::uint8_t& point_capacity) noexcept {
       if (indice_bitset & static_cast<std::uint64_t>(1) << _start_index) {
         const auto indice_point = point(indice);
 
@@ -525,13 +525,13 @@ namespace hexagonal_walk {
     }
 
   public:
-    depth_first_search()
+    depth_first_search() noexcept
       : _stop(false), _result(), _result_point(0)
     {
       ;
     }
 
-    const auto operator()() {
+    const auto operator()() noexcept {
       if (_tiles.size() > 64) {
         return std::vector<std::uint16_t>{};
       }
@@ -545,7 +545,7 @@ namespace hexagonal_walk {
       return boost::copy_range<std::vector<std::uint16_t>>(_result);
     }
 
-    const auto stop() {
+    const auto stop() noexcept {
       _stop = true;
     }
   };
