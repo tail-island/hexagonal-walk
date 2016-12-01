@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
         return beam_search();
       });
 
-    depth_first_search_future.wait_until(starting_time + std::chrono::milliseconds(200));
+    depth_first_search_future.wait_until(starting_time + std::chrono::milliseconds(50));
     depth_first_search.stop();
     auto depth_first_search_result = depth_first_search_future.get();
 
