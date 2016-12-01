@@ -23,10 +23,6 @@ namespace hexagonal_walk {
     };
 
   public:
-    tile() {
-      ;
-    }
-
     tile(const std::uint8_t& x, const std::uint8_t& y)
       : _values{y, x}
     {
