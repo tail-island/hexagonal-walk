@@ -98,7 +98,7 @@ namespace hexagonal_walk {
             return std::make_pair(indexed_tile.value(), indexed_tile.index());
           }));
 
-      // vector<vector>だとメモリが連続しないので、CPUのキャッシュにのる可能性が減ります。。。なので、vector<static_vector>に変更します。
+      // vector<vector>だとメモリが連続しないので、CPUのキャッシュにのる可能性が減る……ような気がします。vector<static_vector>に変更してみます。
       // _adjacencies = boost::copy_range<std::vector<std::vector<std::uint16_t>>>(
       //   _tiles |
       //   boost::adaptors::transformed(
@@ -123,7 +123,7 @@ namespace hexagonal_walk {
 
       _adjacencies = std::vector<boost::container::static_vector<std::uint16_t, 6>>(_tiles.size());
 
-      // static_vectorはムーブができません。copy_rangeだと効率が悪そうなので、直接構築します。
+      // static_vectorはムーブができません。だから、直接構築してみます。
       for (const auto& indexed_tile : _tiles | boost::adaptors::indexed()) {
         for (const auto& around_tile : indexed_tile.value().around_tiles()) {
           const auto& indice_map_it = indice_map.find(around_tile);
