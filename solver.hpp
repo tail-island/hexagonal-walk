@@ -183,14 +183,14 @@ namespace hexagonal_walk {
               result_point = game_state_point;
             }
 
-            queue.pop();
-            continue;
+            goto cont; // continue;
           }
 
           for (const auto& next_game_state : next_game_states(game_state)) {
             next_queue.emplace(std::move(next_game_state));
           }
 
+        cont:
           queue.pop();
         }
 
