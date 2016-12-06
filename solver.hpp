@@ -173,7 +173,7 @@ namespace hexagonal_walk {
         std::priority_queue<game_state> next_queue;
 
         for (auto i = 0; i < 300 && !queue.empty(); ++i) {
-          const auto game_state = queue.top(); queue.pop();
+          const auto& game_state = queue.top(); // queue.pop();
 
           if (game_state.is_goaled()) {
             const auto game_state_point = point(game_state.indice());
@@ -183,12 +183,15 @@ namespace hexagonal_walk {
               result_point = game_state_point;
             }
 
+            queue.pop();
             continue;
           }
 
           for (const auto& next_game_state : next_game_states(game_state)) {
             next_queue.emplace(std::move(next_game_state));
           }
+
+          queue.pop();
         }
 
         queue = std::move(next_queue);
