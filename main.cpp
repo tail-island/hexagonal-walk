@@ -46,7 +46,7 @@ int main(int argc, char** argv) {
       // beam_search_future.get();
 
       hexagonal_walk::write_answer(depth_first_search_result);
-      std::exit(0);
+      std::quick_exit(0);
     }
 
     fattening_future.wait_until(starting_time + std::chrono::milliseconds(500));
@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
 
     if (fattening_result.size() > 500) {
       beam_search.stop();
-      beam_search_future.get();
+      // beam_search_future.get();
 
       return fattening_result;
     }
@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
 
   if (result_1.size() == hexagonal_walk::_tiles.size() + 1) {
     hexagonal_walk::write_answer(result_1);
-    std::exit(0);
+    std::quick_exit(0);
   }
 
   const auto result_2 = [&]() {
@@ -122,7 +122,7 @@ int main(int argc, char** argv) {
 
   if (result_2.size() == hexagonal_walk::_tiles.size() + 1) {
     hexagonal_walk::write_answer(result_2);
-    std::exit(0);
+    std::quick_exit(0);
   }
 
   const auto result_3 = [&]() {
@@ -176,7 +176,7 @@ int main(int argc, char** argv) {
    }();
 
   hexagonal_walk::write_answer(result_3);
-  std::exit(0);
+  std::quick_exit(0);
 
   return 0;
 }

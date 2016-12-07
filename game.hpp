@@ -318,7 +318,8 @@ namespace hexagonal_walk {
       0);
   }
 
-  inline const auto write_answer(const std::vector<std::uint16_t>& indice) noexcept {
+  template <typename T>
+  inline const auto write_answer(const T& indice) noexcept {
     for (const auto& index : indice) {
       std::cout << _tiles[index] << std::endl;
     }

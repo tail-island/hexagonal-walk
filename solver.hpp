@@ -489,6 +489,7 @@ namespace hexagonal_walk {
     std::atomic<bool> _stop;
     boost::container::static_vector<std::uint16_t, 64 + 1> _result;
     int _result_point;
+    bool _finished;
 
     const auto compute(const boost::container::static_vector<std::uint16_t, 64 + 1>& indice, const std::uint64_t& indice_bitset, const std::uint8_t& point_capacity) noexcept {
       if (indice_bitset & static_cast<std::uint64_t>(1) << _start_index) {
@@ -499,14 +500,18 @@ namespace hexagonal_walk {
           _result_point = indice_point;
         }
 
-        return;
-      }
+        if (_result.size() == _tiles.size() + 1) {
+          _finished = true;
+        }
 
-      if (_stop) {
         return;
       }
 
       for (const auto& next_index : _adjacencies[indice.back()]) {
+        if (_stop || _finished) {
+          return;
+        }
+
         const auto next_index_bit = static_cast<std::uint64_t>(1) << next_index;
 
         if (indice_bitset & next_index_bit) {
@@ -529,23 +534,23 @@ namespace hexagonal_walk {
 
   public:
     depth_first_search() noexcept
-      : _stop(false), _result(), _result_point(0)
+      : _stop(false), _result(), _result_point(0), _finished(false)
     {
       ;
     }
 
     const auto operator()() noexcept {
       if (_tiles.size() > 64) {
-        return std::vector<std::uint16_t>{};
+        return boost::container::static_vector<std::uint16_t, 64 + 1>{};
       }
 
       compute(boost::container::static_vector<std::uint16_t, 64 + 1>{_start_index}, static_cast<std::uint64_t>(0), 1);
 
       if (_stop) {
-        return std::vector<std::uint16_t>{};
+        return boost::container::static_vector<std::uint16_t, 64 + 1>{};
       }
 
-      return boost::copy_range<std::vector<std::uint16_t>>(_result);
+      return _result;
     }
 
     const auto stop() noexcept {
