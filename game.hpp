@@ -308,7 +308,7 @@ namespace hexagonal_walk {
   }
 
   template <typename T>
-  inline const auto point(const T& indice) noexcept {
+  __forceinline /*inline*/ const auto point(const T& indice) noexcept {
     return boost::accumulate(
       indice |
       boost::adaptors::transformed(

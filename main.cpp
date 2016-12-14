@@ -80,25 +80,27 @@ int main(int argc, char** argv) {
         return fattening(result_1);
       });
 
+    const auto& all_indice = hexagonal_walk::all_indice();
+
     hexagonal_walk::local_search local_search_1;
     auto local_search_1_future = std::async(
       std::launch::async,
       [&]() {
-        return local_search_1(result_1);
+        return local_search_1(result_1, all_indice);
       });
 
     hexagonal_walk::local_search local_search_2;
     auto local_search_2_future = std::async(
       std::launch::async,
       [&]() {
-        return local_search_2(result_1);
+        return local_search_2(result_1, all_indice);
       });
 
     hexagonal_walk::local_search local_search_3;
     auto local_search_3_future = std::async(
       std::launch::async,
       [&]() {
-        return local_search_3(result_1);
+        return local_search_3(result_1, all_indice);
       });
 
     fattening_future.wait_until(starting_time + std::chrono::milliseconds(4200));
@@ -126,34 +128,35 @@ int main(int argc, char** argv) {
   }
 
   const auto result_3 = [&]() {
-    const auto changeable_indice = hexagonal_walk::maybe_visitable_indice(result_2);
+    const auto& maybe_visitable_indice = hexagonal_walk::maybe_visitable_indice(result_2);
+    const auto& all_indice = hexagonal_walk::all_indice();
 
     hexagonal_walk::local_search local_search_1;
     auto local_search_1_future = std::async(
       std::launch::async,
       [&]() {
-        return local_search_1(result_2, changeable_indice);
+        return local_search_1(result_2, maybe_visitable_indice);
       });
 
     hexagonal_walk::local_search local_search_2;
     auto local_search_2_future = std::async(
       std::launch::async,
       [&]() {
-        return local_search_2(result_2, changeable_indice);
+        return local_search_2(result_2, maybe_visitable_indice);
       });
 
     hexagonal_walk::local_search local_search_3;
     auto local_search_3_future = std::async(
       std::launch::async,
       [&]() {
-        return local_search_3(result_2);
+        return local_search_3(result_2, all_indice);
       });
 
     hexagonal_walk::local_search local_search_4;
     auto local_search_4_future = std::async(
       std::launch::async,
       [&]() {
-        return local_search_4(result_2);
+        return local_search_4(result_2, all_indice);
       });
 
     local_search_1_future.wait_until(starting_time + std::chrono::milliseconds(4600));

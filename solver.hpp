@@ -344,15 +344,6 @@ namespace hexagonal_walk {
       return cycle(path(compute(node(indice), changeable_indice)));
     }
 
-    const auto operator()(const std::vector<std::uint16_t>& indice) noexcept {
-      std::vector<std::uint16_t> changeable_indice; changeable_indice.reserve(_tiles.size());
-      for (auto i = 0; i < static_cast<int>(_tiles.size()); ++i) {
-        changeable_indice.emplace_back(i);
-      }
-
-      return (*this)(indice, changeable_indice);
-    }
-
     const auto stop() noexcept {
       _stop = true;
     }
@@ -365,6 +356,16 @@ namespace hexagonal_walk {
       [&](const auto& index) {
         result[index] = true;
       });
+
+    return result;
+  }
+
+  inline auto all_indice() noexcept {
+    std::vector<std::uint16_t> result; result.reserve(_tiles.size());
+
+    for (auto i = 0; i < static_cast<int>(_tiles.size()); ++i) {
+      result.emplace_back(i);
+    }
 
     return result;
   }
@@ -417,7 +418,7 @@ namespace hexagonal_walk {
         inserted = false;
 
         auto point_capacity = 1;
-        for (auto i = 0; i < static_cast<int>(result.size()) - 1; ++i) {
+        for (auto i = 0; i < static_cast<int>(result.size()) - 1 && !_stop; ++i) {
           if (_points[result[i]] == point_capacity) {
             ++point_capacity;
           }
@@ -489,19 +490,20 @@ namespace hexagonal_walk {
     std::atomic<bool> _stop;
     boost::container::static_vector<std::uint16_t, 64 + 1> _result;
     int _result_point;
+    const std::uint64_t _start_index_bit;
     bool _finished;
 
     const auto compute(const boost::container::static_vector<std::uint16_t, 64 + 1>& indice, const std::uint64_t& indice_bitset, const std::uint8_t& point_capacity) noexcept {
-      if (indice_bitset & static_cast<std::uint64_t>(1) << _start_index) {
+      if (indice_bitset & _start_index_bit) {
         const auto indice_point = point(indice);
 
         if (indice_point > _result_point) {
           _result = indice;
           _result_point = indice_point;
-        }
 
-        if (_result.size() == _tiles.size() + 1) {
-          _finished = true;
+          if (_result.size() == _tiles.size() + 1) {
+            _finished = true;
+          }
         }
 
         return;
@@ -534,7 +536,7 @@ namespace hexagonal_walk {
 
   public:
     depth_first_search() noexcept
-      : _stop(false), _result(), _result_point(0), _finished(false)
+      : _stop(false), _result(), _result_point(0), _start_index_bit(static_cast<std::uint64_t>(1) << _start_index), _finished(false)
     {
       ;
     }
